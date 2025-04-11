@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${MEDICAL_DB}
+      POSTGRES_USER: ${MEDICAL_USER}
+      POSTGRES_PASSWORD: ${MEDICAL_PASSWORD}
+      
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+
+  web:
+    build: .
+    entrypoint: ["sh", "entrypoint.sh"]
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge
